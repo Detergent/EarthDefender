@@ -114,6 +114,7 @@ public class EarthDefender extends ApplicationAdapter {
 				iter.remove();
 			if(asteroid.overlaps(player)){
 				//destroy player
+				
 			}
 		}
 	}
