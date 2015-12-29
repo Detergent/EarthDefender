@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
@@ -105,9 +106,9 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 		//Keyboard directional key movement logic
 		//NOTE: Touch/mouse movement handled in overridden listeners below
 		if(Gdx.input.isKeyPressed(Keys.LEFT)) 
-			player.x -= 300 * deltaTime;
+			player.x -= 400 * deltaTime;
 		if(Gdx.input.isKeyPressed(Keys.RIGHT)) 
-			player.x += 300 * deltaTime;
+			player.x += 400 * deltaTime;
 		
 		//Keep player in bounds of screen
 		if(player.x < 0)
@@ -251,7 +252,10 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
+		if(button == Buttons.RIGHT){
+			shoot(player);
+		}
+		System.out.println(button);
 		return false;
 	}
 
@@ -278,6 +282,7 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
 	
 	//TODO ApplicationAdapter.pause() and ApplicationAdapter.resume()
 }
