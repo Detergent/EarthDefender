@@ -16,12 +16,16 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
+
+import net.jgnetworks.earthdefender.enemy.Asteroid;
+import net.jgnetworks.earthdefender.projectile.Projectile;
 
 
 public class EarthDefender extends ApplicationAdapter implements InputProcessor, GestureListener {
@@ -31,12 +35,13 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 	private OrthographicCamera camera;
 	private Vector3 touchPos;
 	private Music bgm;
+	private long currentTime;
 	
 	//Player specific objects
 	private TextureAtlas shipTextureAtlas;
 	private Animation shipIdleAnimation;
 	private Rectangle player;
-	private Array<Rectangle> playerProjectiles;
+	private Array<Projectile> playerProjectiles;
 	private long lastPlayerProjectile;
 	private TextureAtlas playerLaserTex;
 	private Animation playerLaserAnim;
@@ -44,7 +49,8 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 	//Enemy specific objects
 	private TextureAtlas asteroidTextureAtlas;
 	private Animation asteroidIdleAnimation;
-	private Array<Rectangle> asteroids;
+	private Texture asteroidDestroyTexture;
+	private Array<Asteroid> asteroids;
 	private long lastEnemySpawn;
 	
 	@Override
@@ -53,6 +59,7 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 480, 720);
 		touchPos = new Vector3();
+		currentTime = TimeUtils.nanoTime();
 		
 		//Create and animate player
 		shipTextureAtlas = new TextureAtlas(Gdx.files.internal("player/ship/shippack/shippack.atlas"));
@@ -60,18 +67,19 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 		playerLaserTex = new TextureAtlas(Gdx.files.internal("player/projectile/projectilePack.atlas"));
 		playerLaserAnim = new Animation (1/3f, playerLaserTex.getRegions());
 		player = new Rectangle();
-		playerProjectiles = new Array<Rectangle>();
+		playerProjectiles = new Array<Projectile>();
 		player.width = 64;
 		player.height = 64;
 		player.x = 480/2-player.width/2;
 		player.y = 20;
 		
 		//Create and animate enemies
-		asteroids = new Array<Rectangle>();
+		asteroids = new Array<Asteroid>();
 		asteroidTextureAtlas = new TextureAtlas(Gdx.files.internal("enemy/asteroid/idleanim/asteroidanimpack.atlas"));
 		asteroidIdleAnimation = new Animation(1/4f, asteroidTextureAtlas.getRegions());
+		asteroidDestroyTexture = new Texture(Gdx.files.internal("enemy/asteroid/asteroid_expl.png"));
 		spawnEnemy();
-		lastEnemySpawn = TimeUtils.nanoTime();
+		lastEnemySpawn = currentTime;
 		lastPlayerProjectile = lastEnemySpawn;
 		
 		bgm = Gdx.audio.newMusic(Gdx.files.internal("EarthDefenderFull.mp3"));
@@ -85,16 +93,8 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.setProjectionMatrix(camera.combined);
 		float deltaTime = Gdx.graphics.getDeltaTime();
-		batch.begin();
 		elapsedTime+=deltaTime;
-		batch.draw(shipIdleAnimation.getKeyFrame(elapsedTime, true), player.x, player.y, player.width, player.height);
-		for(Rectangle asteroid : asteroids){
-			batch.draw(asteroidIdleAnimation.getKeyFrame(elapsedTime, true), asteroid.x, asteroid.y, 64, 64);
-		}
-		for(Rectangle projectile : playerProjectiles){
-			batch.draw(playerLaserAnim.getKeyFrame(elapsedTime, true), projectile.x, projectile.y, 10, 10);
-		}
-		batch.end();
+		currentTime = TimeUtils.nanoTime();
 		
 		//Define input sources to handle keypresses and gestures
 		InputMultiplexer im = new InputMultiplexer();
@@ -116,22 +116,32 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 		if(player.x>480-player.width)
 			player.x = 480-player.width;
 		
-		if(TimeUtils.nanoTime() - lastEnemySpawn > 1000000000)
+		if(currentTime - lastEnemySpawn > 1000000000)
 			spawnEnemy();
 		
-			Iterator<Rectangle> playerProjItr = playerProjectiles.iterator();
+		Iterator<Projectile> playerProjItr = playerProjectiles.iterator();
+		Iterator<Asteroid> astrItr = asteroids.iterator();
 		while(playerProjItr.hasNext()) {
-			Rectangle projectile = playerProjItr.next();
+			Projectile projectile = playerProjItr.next();
 			projectile.y += 200 * deltaTime;
 			if(projectile.y - 10 > 720)
 				playerProjItr.remove();
-			// TODO Check for projectile/enemy collision. Would likely be good to have projectile class
-			// Remember pooling: https://github.com/libgdx/libgdx/wiki/Memory-management
+			else{
+				astrItr = asteroids.iterator();
+				while(astrItr.hasNext()){
+					Asteroid asteroid = astrItr.next();
+					if(projectile.overlaps(asteroid)){
+						asteroid.isDestroyed=true;
+						asteroid.destroyedTime=currentTime;
+						playerProjItr.remove();
+					}
+				}
+			}
 		}
 		
-		Iterator<Rectangle> astrItr = asteroids.iterator();
+		astrItr = asteroids.iterator();
 		while(astrItr.hasNext()) {
-			Rectangle asteroid = astrItr.next();
+			Asteroid asteroid = astrItr.next();
 			asteroid.y -= 200 * deltaTime;
 			if(asteroid.y + 64 < 0)
 				astrItr.remove();
@@ -139,6 +149,29 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 				//destroy player
 			} 
 		}
+		
+		batch.begin();
+		batch.draw(shipIdleAnimation.getKeyFrame(elapsedTime, true), player.x, player.y, player.width, player.height);
+		
+		astrItr = asteroids.iterator();
+		while(astrItr.hasNext()){
+			Asteroid asteroid = astrItr.next();
+			if(asteroid.isDestroyed){
+				batch.draw(asteroidDestroyTexture, asteroid.x, asteroid.y, 64, 64);
+				if(currentTime - asteroid.destroyedTime >= 250000000)
+					astrItr.remove();
+					
+			}else {
+				batch.draw(asteroidIdleAnimation.getKeyFrame(elapsedTime, true), asteroid.x, asteroid.y, 64, 64);
+			}
+		}
+		playerProjItr = playerProjectiles.iterator();
+		while(playerProjItr.hasNext()){
+			Projectile projectile = playerProjItr.next();
+			batch.draw(playerLaserAnim.getKeyFrame(elapsedTime, true), projectile.x, projectile.y, 10, 10);
+		}
+		batch.end();
+		
 	}
 			
 	
@@ -151,25 +184,24 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 	}
 	
 	public void spawnEnemy() {
-		Rectangle asteroid = new Rectangle();
+		Asteroid asteroid = new Asteroid();
 		asteroid.x = MathUtils.random(0, 480 - 64);
 		asteroid.y = 720;
 		asteroid.width = 64;
 		asteroid.height = 64;
 		asteroids.add(asteroid);
-		lastEnemySpawn = TimeUtils.nanoTime();
+		lastEnemySpawn = currentTime;
 	}
 
 	public void shoot(Rectangle shooter) {
-		if(shooter == player && TimeUtils.nanoTime() - lastPlayerProjectile >= 500000000){
-			Rectangle projectile = new Rectangle();
+		if(shooter == player && currentTime - lastPlayerProjectile >= 500000000){
+			Projectile projectile = new Projectile();
 			projectile.x = player.x + (player.width/2 - 5);
 			projectile.y = player.y + player.height;
 			projectile.width = 10;
 			projectile.height = 10;
 			playerProjectiles.add(projectile);
-			lastPlayerProjectile = TimeUtils.nanoTime();
-			System.out.println("Shoot");
+			lastPlayerProjectile = currentTime;
 		}
 	}
 	
