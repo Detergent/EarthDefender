@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
@@ -13,13 +12,11 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -28,19 +25,20 @@ import net.jgnetworks.earthdefender.enemy.Asteroid;
 import net.jgnetworks.earthdefender.projectile.Projectile;
 
 
-public class EarthDefender extends ApplicationAdapter implements InputProcessor, GestureListener {
+public class EarthDefender extends ApplicationAdapter {
 	//Various game mechanic objects
 	private SpriteBatch batch;
 	private float elapsedTime = 0;
-	private OrthographicCamera camera;
-	private Vector3 touchPos;
+	protected OrthographicCamera camera;
+	protected Vector3 touchPos;
 	private Music bgm;
 	private long currentTime;
+	protected EarthDefenderInput input;
 	
 	//Player specific objects
 	private TextureAtlas shipTextureAtlas;
 	private Animation shipIdleAnimation;
-	private Rectangle player;
+	protected Rectangle player;
 	private Array<Projectile> playerProjectiles;
 	private long lastPlayerProjectile;
 	private TextureAtlas playerLaserTex;
@@ -82,6 +80,14 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 		lastEnemySpawn = currentTime;
 		lastPlayerProjectile = lastEnemySpawn;
 		
+		input = new EarthDefenderInput();
+		input.setCaller(this);  //I feel like I'm butchering inheritance with this, should clean up
+		InputMultiplexer im = new InputMultiplexer();
+		GestureDetector gd = new GestureDetector(input);
+		im.addProcessor(gd);
+		im.addProcessor(input);
+		Gdx.input.setInputProcessor(im);
+		
 		bgm = Gdx.audio.newMusic(Gdx.files.internal("EarthDefenderFull.mp3"));
 		bgm.setLooping(true);
 		bgm.play();
@@ -95,13 +101,6 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 		float deltaTime = Gdx.graphics.getDeltaTime();
 		elapsedTime+=deltaTime;
 		currentTime = TimeUtils.nanoTime();
-		
-		//Define input sources to handle keypresses and gestures
-		InputMultiplexer im = new InputMultiplexer();
-	    GestureDetector gd = new GestureDetector(this);
-	    im.addProcessor(gd);
-	    im.addProcessor(this);
-        Gdx.input.setInputProcessor(im);
 		
 		//Keyboard directional key movement logic
 		//NOTE: Touch/mouse movement handled in overridden listeners below
@@ -204,117 +203,6 @@ public class EarthDefender extends ApplicationAdapter implements InputProcessor,
 			lastPlayerProjectile = currentTime;
 		}
 	}
-	
-	@Override
-	public boolean touchDown(float x, float y, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean tap(float x, float y, int count, int button) {
-		shoot(player);
-		return false;
-	}
-
-	@Override
-	public boolean longPress(float x, float y) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean fling(float velocityX, float velocityY, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean pan(float x, float y, float deltaX, float deltaY) {
-		touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-		camera.unproject(touchPos);
-		player.x = touchPos.x - player.width/2;
-		
-		//Keep player in bounds of screen
-		if(player.x < 0)
-			player.x = 0;
-		if(player.x>480-player.width)
-			player.x = 480-player.width;
-		
-		return false;
-	}
-
-	@Override
-	public boolean panStop(float x, float y, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean zoom(float initialDistance, float distance) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean keyDown(int keycode) {
-		if(keycode == Keys.SPACE){
-			shoot(player);
-		}
-		return false;
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if(button == Buttons.RIGHT){
-			shoot(player);
-		}
-		System.out.println(button);
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
 	
 	//TODO ApplicationAdapter.pause() and ApplicationAdapter.resume()
 }
