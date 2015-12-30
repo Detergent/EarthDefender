@@ -6,7 +6,6 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -43,6 +42,8 @@ public class EarthDefender extends ApplicationAdapter {
 	private long lastPlayerProjectile;
 	private TextureAtlas playerLaserTex;
 	private Animation playerLaserAnim;
+	private Iterator<Projectile> playerProjItr;
+
 	
 	//Enemy specific objects
 	private TextureAtlas asteroidTextureAtlas;
@@ -50,6 +51,7 @@ public class EarthDefender extends ApplicationAdapter {
 	private Texture asteroidDestroyTexture;
 	private Array<Asteroid> asteroids;
 	private long lastEnemySpawn;
+	private Iterator<Asteroid> astrItr;
 	
 	@Override
 	public void create () {
@@ -118,8 +120,8 @@ public class EarthDefender extends ApplicationAdapter {
 		if(currentTime - lastEnemySpawn > 1000000000)
 			spawnEnemy();
 		
-		Iterator<Projectile> playerProjItr = playerProjectiles.iterator();
-		Iterator<Asteroid> astrItr = asteroids.iterator();
+		astrItr = asteroids.iterator();
+		playerProjItr = playerProjectiles.iterator();
 		while(playerProjItr.hasNext()) {
 			Projectile projectile = playerProjItr.next();
 			projectile.y += 200 * deltaTime;
@@ -178,8 +180,17 @@ public class EarthDefender extends ApplicationAdapter {
 	public void dispose() {
 		shipTextureAtlas.dispose();
 		asteroidTextureAtlas.dispose();
+		input.dispose();
 		bgm.dispose();
-		batch.dispose();
+		batch.dispose(); 
+		playerLaserTex.dispose();
+		asteroidDestroyTexture.dispose();
+		playerProjItr = playerProjectiles.iterator();
+		astrItr = asteroids.iterator();
+		while(playerProjItr.hasNext())
+			playerProjItr.remove();
+		while(astrItr.hasNext())
+			astrItr.remove();
 	}
 	
 	public void spawnEnemy() {
