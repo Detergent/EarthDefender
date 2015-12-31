@@ -21,6 +21,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import net.jgnetworks.earthdefender.enemy.Asteroid;
+import net.jgnetworks.earthdefender.player.Player;
+import net.jgnetworks.earthdefender.projectile.Laser;
 import net.jgnetworks.earthdefender.projectile.Projectile;
 
 
@@ -35,15 +37,13 @@ public class EarthDefender extends ApplicationAdapter {
 	protected EarthDefenderInput input;
 	
 	//Player specific objects
-	private TextureAtlas shipTextureAtlas;
-	private Animation shipIdleAnimation;
-	protected Rectangle player;
+	protected Player player;
+	
 	private Array<Projectile> playerProjectiles;
 	private long lastPlayerProjectile;
-	private TextureAtlas playerLaserTex;
-	private Animation playerLaserAnim;
+	
 	private Iterator<Projectile> playerProjItr;
-
+	
 	
 	//Enemy specific objects
 	private TextureAtlas asteroidTextureAtlas;
@@ -62,16 +62,10 @@ public class EarthDefender extends ApplicationAdapter {
 		currentTime = TimeUtils.nanoTime();
 		
 		//Create and animate player
-		shipTextureAtlas = new TextureAtlas(Gdx.files.internal("player/ship/shippack/shippack.atlas"));
-		shipIdleAnimation = new Animation (1/6f, shipTextureAtlas.getRegions());
-		playerLaserTex = new TextureAtlas(Gdx.files.internal("player/projectile/projectilePack.atlas"));
-		playerLaserAnim = new Animation (1/3f, playerLaserTex.getRegions());
-		player = new Rectangle();
+		player = new Player();
+		player.create();
 		playerProjectiles = new Array<Projectile>();
-		player.width = 64;
-		player.height = 64;
-		player.x = 480/2-player.width/2;
-		player.y = 20;
+		
 		
 		//Create and animate enemies
 		asteroids = new Array<Asteroid>();
@@ -103,6 +97,8 @@ public class EarthDefender extends ApplicationAdapter {
 		float deltaTime = Gdx.graphics.getDeltaTime();
 		elapsedTime+=deltaTime;
 		currentTime = TimeUtils.nanoTime();
+		
+		//TODO move these to the input class for sanity sake, although this seems easier
 		
 		//Keyboard directional key movement logic
 		//NOTE: Touch/mouse movement handled in overridden listeners below
@@ -152,7 +148,7 @@ public class EarthDefender extends ApplicationAdapter {
 		}
 		
 		batch.begin();
-		batch.draw(shipIdleAnimation.getKeyFrame(elapsedTime, true), player.x, player.y, player.width, player.height);
+		batch.draw(player.shipIdleAnimation.getKeyFrame(elapsedTime, true), player.x, player.y, player.width, player.height);
 		
 		astrItr = asteroids.iterator();
 		while(astrItr.hasNext()){
@@ -168,8 +164,8 @@ public class EarthDefender extends ApplicationAdapter {
 		}
 		playerProjItr = playerProjectiles.iterator();
 		while(playerProjItr.hasNext()){
-			Projectile projectile = playerProjItr.next();
-			batch.draw(playerLaserAnim.getKeyFrame(elapsedTime, true), projectile.x, projectile.y, 10, 10);
+			Laser laser = (Laser) playerProjItr.next();
+			batch.draw(laser.animation.getKeyFrame(elapsedTime, true), laser.x, laser.y, 10, 10);
 		}
 		batch.end();
 		
@@ -178,19 +174,22 @@ public class EarthDefender extends ApplicationAdapter {
 	
 	@Override
 	public void dispose() {
-		shipTextureAtlas.dispose();
+		player.dispose();
 		asteroidTextureAtlas.dispose();
 		input.dispose();
 		bgm.dispose();
 		batch.dispose(); 
-		playerLaserTex.dispose();
 		asteroidDestroyTexture.dispose();
 		playerProjItr = playerProjectiles.iterator();
 		astrItr = asteroids.iterator();
-		while(playerProjItr.hasNext())
+		while(playerProjItr.hasNext()) {
+			Projectile projectile = playerProjItr.next();
+			projectile.dispose(); //disposes of textures
 			playerProjItr.remove();
-		while(astrItr.hasNext())
-			astrItr.remove();
+		}
+		while(astrItr.hasNext()){
+			astrItr.remove();			
+		}
 	}
 	
 	public void spawnEnemy() {
@@ -205,12 +204,13 @@ public class EarthDefender extends ApplicationAdapter {
 
 	public void shoot(Rectangle shooter) {
 		if(shooter == player && currentTime - lastPlayerProjectile >= 500000000){
-			Projectile projectile = new Projectile();
-			projectile.x = player.x + (player.width/2 - 5);
-			projectile.y = player.y + player.height;
-			projectile.width = 10;
-			projectile.height = 10;
-			playerProjectiles.add(projectile);
+			Laser laser = new Laser();
+			laser.create();
+			laser.x = player.x + (player.width/2 - 5);
+			laser.y = player.y + player.height;
+			laser.width = 10;
+			laser.height = 10;
+			playerProjectiles.add(laser);
 			lastPlayerProjectile = currentTime;
 		}
 	}
