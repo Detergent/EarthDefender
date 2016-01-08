@@ -1,22 +1,17 @@
 package net.jgnetworks.earthdefender.projectile;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import net.jgnetworks.earthdefender.player.Player;
 
 @SuppressWarnings("serial")
 public class Laser extends Projectile{
-	public TextureAtlas texture;
-	public Animation animation;
+
+	public Laser(Player player){
+		//explicit call required to set projectile position and size
+		super(player);
+		//Other variables can later be created here for mechanics such as damage.
+		//Right now lasers are the same a projectiles, but this will likely change
+		//when powerups are added.
 	
-	@Override
-	public void create() {
-		texture = new TextureAtlas(Gdx.files.internal("player/projectile/projectilePack.atlas"));
-		animation = new Animation (1/3f, texture.getRegions());
 	}
-	
-	@Override
-	public void dispose(){
-		texture.dispose();
-	}
+
 }

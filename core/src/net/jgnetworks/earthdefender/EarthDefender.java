@@ -38,10 +38,8 @@ public class EarthDefender extends ApplicationAdapter {
 	
 	//Player specific objects
 	protected Player player;
-	
 	private Array<Projectile> playerProjectiles;
 	private long lastPlayerProjectile;
-	
 	private Iterator<Projectile> playerProjItr;
 	
 	
@@ -53,6 +51,12 @@ public class EarthDefender extends ApplicationAdapter {
 	private long lastEnemySpawn;
 	private Iterator<Asteroid> astrItr;
 	
+	//Textures
+	private TextureAtlas laserTextureAtlas;
+	private Animation laserAnimation;
+	private TextureAtlas shipTextureAtlas;
+	private Animation shipIdleAnimation;
+	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
@@ -63,15 +67,12 @@ public class EarthDefender extends ApplicationAdapter {
 		
 		//Create and animate player
 		player = new Player();
-		player.create();
 		playerProjectiles = new Array<Projectile>();
+		loadTextures();
 		
 		
 		//Create and animate enemies
 		asteroids = new Array<Asteroid>();
-		asteroidTextureAtlas = new TextureAtlas(Gdx.files.internal("enemy/asteroid/idleanim/asteroidanimpack.atlas"));
-		asteroidIdleAnimation = new Animation(1/4f, asteroidTextureAtlas.getRegions());
-		asteroidDestroyTexture = new Texture(Gdx.files.internal("enemy/asteroid/asteroid_expl.png"));
 		spawnEnemy();
 		lastEnemySpawn = currentTime;
 		lastPlayerProjectile = lastEnemySpawn;
@@ -148,7 +149,7 @@ public class EarthDefender extends ApplicationAdapter {
 		}
 		
 		batch.begin();
-		batch.draw(player.shipIdleAnimation.getKeyFrame(elapsedTime, true), player.x, player.y, player.width, player.height);
+		batch.draw(shipIdleAnimation.getKeyFrame(elapsedTime, true), player.x, player.y, player.width, player.height);
 		
 		astrItr = asteroids.iterator();
 		while(astrItr.hasNext()){
@@ -165,7 +166,7 @@ public class EarthDefender extends ApplicationAdapter {
 		playerProjItr = playerProjectiles.iterator();
 		while(playerProjItr.hasNext()){
 			Laser laser = (Laser) playerProjItr.next();
-			batch.draw(laser.animation.getKeyFrame(elapsedTime, true), laser.x, laser.y, 10, 10);
+			batch.draw(laserAnimation.getKeyFrame(elapsedTime, true), laser.x, laser.y, 10, 10);
 		}
 		batch.end();
 		
@@ -174,22 +175,21 @@ public class EarthDefender extends ApplicationAdapter {
 	
 	@Override
 	public void dispose() {
-		player.dispose();
-		asteroidTextureAtlas.dispose();
-		input.dispose();
 		bgm.dispose();
 		batch.dispose(); 
-		asteroidDestroyTexture.dispose();
 		playerProjItr = playerProjectiles.iterator();
 		astrItr = asteroids.iterator();
 		while(playerProjItr.hasNext()) {
-			Projectile projectile = playerProjItr.next();
-			projectile.dispose(); //disposes of textures
 			playerProjItr.remove();
 		}
 		while(astrItr.hasNext()){
 			astrItr.remove();			
 		}
+		asteroidDestroyTexture.dispose();
+		asteroidTextureAtlas.dispose();
+		shipTextureAtlas.dispose();
+		laserTextureAtlas.dispose();
+		input.dispose();
 	}
 	
 	public void spawnEnemy() {
@@ -204,16 +204,20 @@ public class EarthDefender extends ApplicationAdapter {
 
 	public void shoot(Rectangle shooter) {
 		if(shooter == player && currentTime - lastPlayerProjectile >= 500000000){
-			Laser laser = new Laser();
-			laser.create();
-			laser.x = player.x + (player.width/2 - 5);
-			laser.y = player.y + player.height;
-			laser.width = 10;
-			laser.height = 10;
+			Laser laser = new Laser(player);
 			playerProjectiles.add(laser);
 			lastPlayerProjectile = currentTime;
 		}
 	}
 	
+	public void loadTextures() {
+		shipTextureAtlas = new TextureAtlas(Gdx.files.internal("player/ship/shippack/shippack.atlas"));
+		shipIdleAnimation = new Animation (1/6f, shipTextureAtlas.getRegions());
+		laserTextureAtlas = new TextureAtlas(Gdx.files.internal("player/projectile/projectilePack.atlas"));
+		laserAnimation = new Animation (1/3f, laserTextureAtlas.getRegions());
+		asteroidTextureAtlas = new TextureAtlas(Gdx.files.internal("enemy/asteroid/idleanim/asteroidanimpack.atlas"));
+		asteroidIdleAnimation = new Animation(1/4f, asteroidTextureAtlas.getRegions());
+		asteroidDestroyTexture = new Texture(Gdx.files.internal("enemy/asteroid/asteroid_expl.png"));
+	}
 	//TODO ApplicationAdapter.pause() and ApplicationAdapter.resume()
 }
