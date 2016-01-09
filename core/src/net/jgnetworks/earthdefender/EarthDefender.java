@@ -205,6 +205,8 @@ public class EarthDefender extends ApplicationAdapter {
 		}, delay);
 	}
 	
+	//TODO ApplicationAdapter.pause() and ApplicationAdapter.resume()
+	
 	public void spawnEnemy() {
 		Asteroid asteroid = new Asteroid();
 		asteroid.x = MathUtils.random(0, 480 - 64);
@@ -232,5 +234,4 @@ public class EarthDefender extends ApplicationAdapter {
 		asteroidIdleAnimation = new Animation(1/4f, asteroidTextureAtlas.getRegions());
 		asteroidDestroyTexture = new Texture(Gdx.files.internal("enemy/asteroid/asteroid_expl.png"));
 	}
-	//TODO ApplicationAdapter.pause() and ApplicationAdapter.resume()
 }
