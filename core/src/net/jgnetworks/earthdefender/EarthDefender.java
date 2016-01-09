@@ -1,6 +1,7 @@
 package net.jgnetworks.earthdefender;
 
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -19,6 +20,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.utils.Timer.Task;
 
 import net.jgnetworks.earthdefender.enemy.Asteroid;
 import net.jgnetworks.earthdefender.player.Player;
@@ -35,6 +38,8 @@ public class EarthDefender extends ApplicationAdapter {
 	private Music bgm;
 	private long currentTime;
 	protected EarthDefenderInput input;
+	private InputMultiplexer im;
+	private GestureDetector gd;
 	
 	//Player specific objects
 	protected Player player;
@@ -79,8 +84,8 @@ public class EarthDefender extends ApplicationAdapter {
 		
 		input = new EarthDefenderInput();
 		input.setCaller(this);  //I feel like I'm butchering inheritance with this, should clean up
-		InputMultiplexer im = new InputMultiplexer();
-		GestureDetector gd = new GestureDetector(input);
+		im = new InputMultiplexer();
+		gd = new GestureDetector(input);
 		im.addProcessor(gd);
 		im.addProcessor(input);
 		Gdx.input.setInputProcessor(im);
@@ -175,21 +180,29 @@ public class EarthDefender extends ApplicationAdapter {
 	
 	@Override
 	public void dispose() {
-		bgm.dispose();
-		batch.dispose(); 
-		playerProjItr = playerProjectiles.iterator();
-		astrItr = asteroids.iterator();
-		while(playerProjItr.hasNext()) {
-			playerProjItr.remove();
-		}
-		while(astrItr.hasNext()){
-			astrItr.remove();			
-		}
-		asteroidDestroyTexture.dispose();
-		asteroidTextureAtlas.dispose();
-		shipTextureAtlas.dispose();
-		laserTextureAtlas.dispose();
-		input.dispose();
+		//Timer delay thrown in to keep this method from disposing of game objects
+		//while they are still in use by render method.
+		float delay = 1; //seconds
+		Timer.schedule(new Task(){
+			@Override
+			public void run() {
+				bgm.dispose();
+				batch.dispose(); 
+				Iterator<Projectile>removePlayerProjItr = playerProjectiles.iterator();
+				Iterator<Asteroid>removeAstItr = asteroids.iterator();
+				while(removePlayerProjItr.hasNext()) {
+					removePlayerProjItr.remove();
+				}
+				while(removeAstItr.hasNext()){
+					removeAstItr.remove();			
+				}
+				asteroidDestroyTexture.dispose();
+				asteroidTextureAtlas.dispose();
+				shipTextureAtlas.dispose();
+				laserTextureAtlas.dispose();
+				input.dispose();
+			}
+		}, delay);
 	}
 	
 	public void spawnEnemy() {
