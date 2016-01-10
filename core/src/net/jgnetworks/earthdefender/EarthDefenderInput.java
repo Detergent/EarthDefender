@@ -8,10 +8,15 @@ import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Vector2;
 
 public class EarthDefenderInput extends EarthDefender implements InputProcessor, GestureListener {
-	private EarthDefender myDefender;
+	private EarthDefender game;
+	private Level level;
 	 
-	public void setCaller(EarthDefender caller) {
-		myDefender = caller;
+	public void setGame(EarthDefender passedGame) {
+		game = passedGame;
+	}
+	
+	public void setLevel(Level currentLevel) {
+		level = currentLevel;
 	}
 	
 	@Override
@@ -22,7 +27,7 @@ public class EarthDefenderInput extends EarthDefender implements InputProcessor,
 
 	@Override
 	public boolean tap(float x, float y, int count, int button) {
-		shoot(myDefender.player);
+		level.shoot(game.player);
 		return false;
 	}
 
@@ -40,15 +45,15 @@ public class EarthDefenderInput extends EarthDefender implements InputProcessor,
 
 	@Override
 	public boolean pan(float x, float y, float deltaX, float deltaY) {
-		myDefender.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-		myDefender.camera.unproject(myDefender.touchPos);
-		myDefender.player.x = myDefender.touchPos.x - myDefender.player.width/2;
+		level.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+		level.camera.unproject(level.touchPos);
+		game.player.x = level.touchPos.x - game.player.width/2;
 		
 		//Keep player in bounds of screen
-		if(myDefender.player.x < 0)
-			myDefender.player.x = 0;
-		if(myDefender.player.x>480-myDefender.player.width)
-			myDefender.player.x = 480-myDefender.player.width;
+		if(game.player.x < 0)
+			game.player.x = 0;
+		if(game.player.x>480-game.player.width)
+			game.player.x = 480-game.player.width;
 		
 		return false;
 	}
@@ -74,8 +79,7 @@ public class EarthDefenderInput extends EarthDefender implements InputProcessor,
 	@Override
 	public boolean keyDown(int keycode) {
 		if(keycode == Keys.SPACE){
-			myDefender.shoot(myDefender.player);
-			System.out.println("Should shoot");
+			level.shoot(game.player);
 		}
 		return false;
 	}
@@ -95,9 +99,8 @@ public class EarthDefenderInput extends EarthDefender implements InputProcessor,
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		if(button == Buttons.RIGHT){
-			myDefender.shoot(myDefender.player);
+			level.shoot(game.player);
 		}
-		System.out.println(button);
 		return false;
 	}
 
