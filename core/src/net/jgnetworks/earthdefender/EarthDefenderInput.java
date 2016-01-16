@@ -9,9 +9,26 @@ import com.badlogic.gdx.math.Vector2;
 
 public class EarthDefenderInput extends EarthDefender implements InputProcessor, GestureListener {
 	private EarthDefender myDefender;
+	private boolean holdingLeft = false;
+	private boolean holdingRight = false;
 	 
 	public void setCaller(EarthDefender caller) {
 		myDefender = caller;
+	}
+	
+	public void updatePos(float deltaTime){
+		//Keyboard directional key movement logic
+		//NOTE: Touch/mouse movement handled in overridden listeners below
+		if(holdingLeft) 
+			myDefender.player.x -= 400 * deltaTime;
+		else if(holdingRight)
+			myDefender.player.x += 400 * deltaTime;
+				
+		//Keep player in bounds of screen
+		if(myDefender.player.x < 0)
+			myDefender.player.x = 0;
+		if(myDefender.player.x>480-myDefender.player.width)
+			myDefender.player.x = 480-myDefender.player.width;
 	}
 	
 	@Override
@@ -77,12 +94,19 @@ public class EarthDefenderInput extends EarthDefender implements InputProcessor,
 			myDefender.shoot(myDefender.player);
 			System.out.println("Should shoot");
 		}
+		else if(keycode == Keys.LEFT)
+			holdingLeft = true;
+		else if(keycode == Keys.RIGHT)
+			holdingRight = true;
 		return false;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
-		// TODO Auto-generated method stub
+		if(keycode == Keys.LEFT)
+			holdingLeft = false;
+		else if(keycode == Keys.RIGHT)
+			holdingRight = false;
 		return false;
 	}
 

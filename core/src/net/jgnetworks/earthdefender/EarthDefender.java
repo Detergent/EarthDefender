@@ -104,20 +104,7 @@ public class EarthDefender extends ApplicationAdapter {
 		elapsedTime+=deltaTime;
 		currentTime = TimeUtils.nanoTime();
 		
-		//TODO move these to the input class for sanity sake, although this seems easier
-		
-		//Keyboard directional key movement logic
-		//NOTE: Touch/mouse movement handled in overridden listeners below
-		if(Gdx.input.isKeyPressed(Keys.LEFT)) 
-			player.x -= 400 * deltaTime;
-		if(Gdx.input.isKeyPressed(Keys.RIGHT)) 
-			player.x += 400 * deltaTime;
-		
-		//Keep player in bounds of screen
-		if(player.x < 0)
-			player.x = 0;
-		if(player.x>480-player.width)
-			player.x = 480-player.width;
+		input.updatePos(deltaTime);
 		
 		if(currentTime - lastEnemySpawn > 1000000000)
 			spawnEnemy();
