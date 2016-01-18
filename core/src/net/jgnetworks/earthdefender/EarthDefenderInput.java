@@ -1,5 +1,7 @@
 package net.jgnetworks.earthdefender;
 
+import net.jgnetworks.earthdefender.level.Level;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
@@ -7,28 +9,33 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Vector2;
 
-public class EarthDefenderInput extends EarthDefender implements InputProcessor, GestureListener {
-	private EarthDefender myDefender;
+public class EarthDefenderInput implements InputProcessor, GestureListener {
+	private EarthDefender game;
+	private Level level;
 	private boolean holdingLeft = false;
 	private boolean holdingRight = false;
 	 
-	public void setCaller(EarthDefender caller) {
-		myDefender = caller;
+	public void setGame(EarthDefender passedGame) {
+		game = passedGame;
+	}
+	
+	public void setLevel(Level passedLevel) {
+		level = passedLevel;
 	}
 	
 	public void updatePos(float deltaTime){
 		//Keyboard directional key movement logic
 		//NOTE: Touch/mouse movement handled in overridden listeners below
 		if(holdingLeft) 
-			myDefender.player.x -= 400 * deltaTime;
+			game.player.x -= 400 * deltaTime;
 		else if(holdingRight)
-			myDefender.player.x += 400 * deltaTime;
+			game.player.x += 400 * deltaTime;
 				
 		//Keep player in bounds of screen
-		if(myDefender.player.x < 0)
-			myDefender.player.x = 0;
-		if(myDefender.player.x>480-myDefender.player.width)
-			myDefender.player.x = 480-myDefender.player.width;
+		if(game.player.x < 0)
+			game.player.x = 0;
+		if(game.player.x>480-game.player.width)
+			game.player.x = 480-game.player.width;
 	}
 	
 	@Override
@@ -39,7 +46,7 @@ public class EarthDefenderInput extends EarthDefender implements InputProcessor,
 
 	@Override
 	public boolean tap(float x, float y, int count, int button) {
-		shoot(myDefender.player);
+		game.shoot(game.player);
 		return false;
 	}
 
@@ -57,15 +64,15 @@ public class EarthDefenderInput extends EarthDefender implements InputProcessor,
 
 	@Override
 	public boolean pan(float x, float y, float deltaX, float deltaY) {
-		myDefender.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-		myDefender.camera.unproject(myDefender.touchPos);
-		myDefender.player.x = myDefender.touchPos.x - myDefender.player.width/2;
+		game.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+		level.camera.unproject(game.touchPos);
+		game.player.x = game.touchPos.x - game.player.width/2;
 		
 		//Keep player in bounds of screen
-		if(myDefender.player.x < 0)
-			myDefender.player.x = 0;
-		if(myDefender.player.x>480-myDefender.player.width)
-			myDefender.player.x = 480-myDefender.player.width;
+		if(game.player.x < 0)
+			game.player.x = 0;
+		if(game.player.x>480-game.player.width)
+			game.player.x = 480-game.player.width;
 		
 		return false;
 	}
@@ -91,7 +98,7 @@ public class EarthDefenderInput extends EarthDefender implements InputProcessor,
 	@Override
 	public boolean keyDown(int keycode) {
 		if(keycode == Keys.SPACE){
-			myDefender.shoot(myDefender.player);
+			game.shoot(game.player);
 			System.out.println("Should shoot");
 		}
 		else if(keycode == Keys.LEFT)
@@ -119,7 +126,7 @@ public class EarthDefenderInput extends EarthDefender implements InputProcessor,
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		if(button == Buttons.RIGHT){
-			myDefender.shoot(myDefender.player);
+			game.shoot(game.player);
 		}
 		System.out.println(button);
 		return false;
