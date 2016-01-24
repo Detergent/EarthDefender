@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
@@ -32,14 +31,13 @@ public class Level1 extends Level {
 	//Player specific objects
 	private Iterator<Projectile> playerProjItr;
 	
-	
 	//Enemy specific objects
 	private TextureAtlas asteroidTextureAtlas;
 	private Animation asteroidIdleAnimation;
 	private Texture asteroidDestroyTexture;
-	private Array<Asteroid> asteroids;
-	private long lastEnemySpawn;
 	private Iterator<Asteroid> astrItr;
+	public Array<Asteroid> asteroids;
+	public long lastEnemySpawn;
 	
 	//Textures
 	private TextureAtlas laserTextureAtlas;
@@ -50,21 +48,17 @@ public class Level1 extends Level {
 	public Level1(final EarthDefender passedGame) {
 		
 		this.game = passedGame;
-		game.input.setLevel(this);
+		game.currentLevel = this;
+		game.currentTime = TimeUtils.nanoTime();
 		
 		batch = new SpriteBatch();
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 480, 720);
-		
-		//Create and animate player
-		
+	
 		loadTextures();
-		
 		
 		//Create and animate enemies
 		asteroids = new Array<Asteroid>();
 		spawnEnemy();
-		lastEnemySpawn = game.currentTime;
+		
 		game.lastPlayerProjectile = lastEnemySpawn;
 		
 		bgm = Gdx.audio.newMusic(Gdx.files.internal("EarthDefenderFull.mp3"));
@@ -76,12 +70,11 @@ public class Level1 extends Level {
 	public void render(float delta) {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.setProjectionMatrix(camera.combined);
-		float deltaTime = Gdx.graphics.getDeltaTime();
-		elapsedTime+=deltaTime;
+		batch.setProjectionMatrix(game.camera.combined);
+		elapsedTime+=delta;
 		game.currentTime = TimeUtils.nanoTime();
 		
-		game.input.updatePos(deltaTime);
+		game.input.updatePos(delta);
 		
 		if(game.currentTime - lastEnemySpawn > 1000000000)
 			spawnEnemy();
@@ -90,7 +83,7 @@ public class Level1 extends Level {
 		playerProjItr = game.playerProjectiles.iterator();
 		while(playerProjItr.hasNext()) {
 			Projectile projectile = playerProjItr.next();
-			projectile.y += 200 * deltaTime;
+			projectile.y += 200 * delta;
 			if(projectile.y - 10 > 720)
 				playerProjItr.remove();
 			else{
@@ -109,11 +102,11 @@ public class Level1 extends Level {
 		astrItr = asteroids.iterator();
 		while(astrItr.hasNext()) {
 			Asteroid asteroid = astrItr.next();
-			asteroid.y -= 200 * deltaTime;
+			asteroid.y -= 200 * delta;
 			if(asteroid.y + 64 < 0)
 				astrItr.remove();
 			else if(asteroid.overlaps(game.player)) {
-				//destroy player
+				game.setScreen(new EndScreen(game));
 			} 
 		}
 		
@@ -140,7 +133,6 @@ public class Level1 extends Level {
 		batch.end();
 		
 	}
-			
 	
 	@Override
 	public void dispose() {
@@ -168,17 +160,7 @@ public class Level1 extends Level {
 		}, delay);
 	}
 	
-	public void spawnEnemy() {
-		Asteroid asteroid = new Asteroid();
-		asteroid.x = MathUtils.random(0, 480 - 64);
-		asteroid.y = 720;
-		asteroid.width = 64;
-		asteroid.height = 64;
-		asteroids.add(asteroid);
-		lastEnemySpawn = game.currentTime;
-	}
-	
-	public void loadTextures() {
+	private void loadTextures() {
 		shipTextureAtlas = new TextureAtlas(Gdx.files.internal("player/ship/shippack/shippack.atlas"));
 		shipIdleAnimation = new Animation (1/6f, shipTextureAtlas.getRegions());
 		laserTextureAtlas = new TextureAtlas(Gdx.files.internal("player/projectile/projectilePack.atlas"));
@@ -188,6 +170,17 @@ public class Level1 extends Level {
 		asteroidDestroyTexture = new Texture(Gdx.files.internal("enemy/asteroid/asteroid_expl.png"));
 	}
 
+	
+	private void spawnEnemy() {
+		Asteroid asteroid = new Asteroid();
+		asteroid.x = MathUtils.random(0, 480 - 64);
+		asteroid.y = 720;
+		asteroid.width = 64;
+		asteroid.height = 64;
+		asteroids.add(asteroid);
+		lastEnemySpawn = game.currentTime;
+	}
+	
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub

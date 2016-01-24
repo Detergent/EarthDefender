@@ -1,0 +1,145 @@
+
+earthDestroPack.png
+size: 1024,1024
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+earth
+  rotate: false
+  xy: 2, 564
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destr0
+  rotate: false
+  xy: 2, 283
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destr1
+  rotate: false
+  xy: 303, 564
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destr2
+  rotate: false
+  xy: 2, 2
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destr3
+  rotate: false
+  xy: 303, 283
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destr4
+  rotate: false
+  xy: 604, 564
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destr5
+  rotate: false
+  xy: 303, 2
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destr6
+  rotate: false
+  xy: 604, 283
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destr7
+  rotate: false
+  xy: 604, 2
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+
+earthDestroPack2.png
+size: 1024,1024
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+earth_destr8
+  rotate: false
+  xy: 2, 564
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destr9
+  rotate: false
+  xy: 2, 283
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destra
+  rotate: false
+  xy: 303, 564
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destrb
+  rotate: false
+  xy: 2, 2
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destrd
+  rotate: false
+  xy: 2, 2
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destrf
+  rotate: false
+  xy: 2, 2
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destrc
+  rotate: false
+  xy: 303, 283
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destre
+  rotate: false
+  xy: 303, 283
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destrg
+  rotate: false
+  xy: 303, 283
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1
+earth_destrh
+  rotate: false
+  xy: 604, 564
+  size: 299, 279
+  orig: 299, 279
+  offset: 0, 0
+  index: -1

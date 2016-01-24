@@ -1,7 +1,5 @@
 package net.jgnetworks.earthdefender;
 
-import net.jgnetworks.earthdefender.level.Level;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
@@ -9,18 +7,22 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Vector2;
 
+import net.jgnetworks.earthdefender.level.Level1;
+import net.jgnetworks.earthdefender.level.MainMenuScreen;
+
 public class EarthDefenderInput implements InputProcessor, GestureListener {
 	private EarthDefender game;
-	private Level level;
 	private boolean holdingLeft = false;
 	private boolean holdingRight = false;
+	
+	private MainMenuScreen menuScreen;
 	 
 	public void setGame(EarthDefender passedGame) {
 		game = passedGame;
 	}
 	
-	public void setLevel(Level passedLevel) {
-		level = passedLevel;
+	public void setMenuScreen(MainMenuScreen passedMenu) {
+		menuScreen = passedMenu;
 	}
 	
 	public void updatePos(float deltaTime){
@@ -46,7 +48,9 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 
 	@Override
 	public boolean tap(float x, float y, int count, int button) {
-		game.shoot(game.player);
+		if(!(game.currentLevel instanceof MainMenuScreen)){
+			game.shoot(game.player);
+		}
 		return false;
 	}
 
@@ -65,7 +69,7 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 	@Override
 	public boolean pan(float x, float y, float deltaX, float deltaY) {
 		game.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-		level.camera.unproject(game.touchPos);
+		game.camera.unproject(game.touchPos);
 		game.player.x = game.touchPos.x - game.player.width/2;
 		
 		//Keep player in bounds of screen
@@ -125,11 +129,23 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if(button == Buttons.RIGHT){
-			game.shoot(game.player);
+		if(game.currentLevel instanceof MainMenuScreen){
+			System.out.println("TouchDown in MainMenuScreen");
+			game.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+			game.camera.unproject(game.touchPos);
+			if(menuScreen.startButton.contains(game.touchPos.x, game.touchPos.y)){
+				System.out.println("ShouldSetScreen");
+				game.setScreen(new Level1(game));
+			}
+			return true;
 		}
-		System.out.println(button);
-		return false;
+		else{
+			if(button == Buttons.RIGHT){
+				game.shoot(game.player);
+			}
+			System.out.println(button);
+			return false;
+		}	
 	}
 
 	@Override
