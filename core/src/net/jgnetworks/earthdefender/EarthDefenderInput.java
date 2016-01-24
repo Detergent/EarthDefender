@@ -7,6 +7,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Vector2;
 
+import net.jgnetworks.earthdefender.level.EndScreen;
 import net.jgnetworks.earthdefender.level.Level1;
 import net.jgnetworks.earthdefender.level.MainMenuScreen;
 
@@ -16,6 +17,7 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 	private boolean holdingRight = false;
 	
 	private MainMenuScreen menuScreen;
+	private EndScreen endScreen;
 	 
 	public void setGame(EarthDefender passedGame) {
 		game = passedGame;
@@ -23,6 +25,10 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 	
 	public void setMenuScreen(MainMenuScreen passedMenu) {
 		menuScreen = passedMenu;
+	}
+	
+	public void setEndScreen(EndScreen passedEnd) {
+		endScreen = passedEnd;
 	}
 	
 	public void updatePos(float deltaTime){
@@ -134,8 +140,18 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 			game.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			game.camera.unproject(game.touchPos);
 			if(menuScreen.startButton.contains(game.touchPos.x, game.touchPos.y)){
-				System.out.println("ShouldSetScreen");
 				game.setScreen(new Level1(game));
+			}
+			else if(menuScreen.endAnimButton.contains(game.touchPos.x, game.touchPos.y)){
+				game.setScreen(new EndScreen(game));
+			}
+			return true;
+		}
+		else if(game.currentLevel instanceof EndScreen){
+			game.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+			game.camera.unproject(game.touchPos);
+			if(endScreen.menuBtn.contains(game.touchPos.x, game.touchPos.y)){
+				game.setScreen(new MainMenuScreen(game));
 			}
 			return true;
 		}

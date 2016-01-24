@@ -27,6 +27,8 @@ public class Level1 extends Level {
 	private SpriteBatch batch;
 	private float elapsedTime = 0;
 	private Music bgm;
+	private float bgY;
+	private long bgScroll;
 	
 	//Player specific objects
 	private Iterator<Projectile> playerProjItr;
@@ -44,12 +46,12 @@ public class Level1 extends Level {
 	private Animation laserAnimation;
 	private TextureAtlas shipTextureAtlas;
 	private Animation shipIdleAnimation;
+	private Texture background;
 
 	public Level1(final EarthDefender passedGame) {
 		
 		this.game = passedGame;
 		game.currentLevel = this;
-		game.currentTime = TimeUtils.nanoTime();
 		
 		batch = new SpriteBatch();
 	
@@ -64,6 +66,9 @@ public class Level1 extends Level {
 		bgm = Gdx.audio.newMusic(Gdx.files.internal("EarthDefenderFull.mp3"));
 		bgm.setLooping(true);
 		bgm.play();
+		
+		bgY = 720;
+		bgScroll = game.currentTime;
 	}
 
 	@Override
@@ -72,7 +77,8 @@ public class Level1 extends Level {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.setProjectionMatrix(game.camera.combined);
 		elapsedTime+=delta;
-		game.currentTime = TimeUtils.nanoTime();
+		
+		setBg();
 		
 		game.input.updatePos(delta);
 		
@@ -111,6 +117,8 @@ public class Level1 extends Level {
 		}
 		
 		batch.begin();
+		batch.draw(background, 0, bgY-720);
+		batch.draw(background, 0, bgY);
 		batch.draw(shipIdleAnimation.getKeyFrame(elapsedTime, true), game.player.x, game.player.y, game.player.width, game.player.height);
 		
 		astrItr = asteroids.iterator();
@@ -168,6 +176,7 @@ public class Level1 extends Level {
 		asteroidTextureAtlas = new TextureAtlas(Gdx.files.internal("enemy/asteroid/idleanim/asteroidanimpack.atlas"));
 		asteroidIdleAnimation = new Animation(1/4f, asteroidTextureAtlas.getRegions());
 		asteroidDestroyTexture = new Texture(Gdx.files.internal("enemy/asteroid/asteroid_expl.png"));
+		background = new Texture(Gdx.files.internal("background.png"));
 	}
 
 	
@@ -179,6 +188,16 @@ public class Level1 extends Level {
 		asteroid.height = 64;
 		asteroids.add(asteroid);
 		lastEnemySpawn = game.currentTime;
+	}
+	
+	private void setBg() {
+		if(game.currentTime - bgScroll > 10000000) {
+			bgY -= 5;
+			bgScroll = game.currentTime;
+		}
+		if(bgY == 0){
+			bgY = 720;
+		}
 	}
 	
 	@Override

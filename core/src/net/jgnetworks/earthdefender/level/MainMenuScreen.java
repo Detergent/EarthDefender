@@ -23,11 +23,15 @@ public class MainMenuScreen extends Level {
 	private Texture titleImage;
 	private Texture earthImage;
 	private Texture endAnimBtnImage;
+	private Texture background;
 	
+	private float bgY;
+	private long bgScroll;
 	
 	public MainMenuScreen(final EarthDefender passedGame) {
 		game = passedGame;
 		game.input.setMenuScreen(this);
+		game.currentLevel = this;
 		
 		batch = new SpriteBatch();
 		loadTextures();
@@ -55,6 +59,9 @@ public class MainMenuScreen extends Level {
 		earth.height = 279;
 		earth.x = 480/2 - earth.width/2;
 		earth.y = earth.height/2;
+		
+		bgY = 720;
+		bgScroll = game.currentTime;
 	}
 	
 	@Override
@@ -68,9 +75,13 @@ public class MainMenuScreen extends Level {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
+		setBg();
+		
 		game.camera.update();
 		batch.setProjectionMatrix(game.camera.combined);
 		batch.begin();
+		batch.draw(background, 0, bgY-720);
+		batch.draw(background, 0, bgY);
 		batch.draw(titleImage, title.x, title.y);
 		batch.draw(startImage, startButton.x, startButton.y);
 		batch.draw(endAnimBtnImage, endAnimButton.x, endAnimButton.y);
@@ -83,6 +94,17 @@ public class MainMenuScreen extends Level {
 		titleImage = new Texture(Gdx.files.internal("title.png"));
 		earthImage = new Texture(Gdx.files.internal("earth/earth.png"));
 		endAnimBtnImage = new Texture(Gdx.files.internal("endbutton.png")); 
+		background = new Texture(Gdx.files.internal("background.png"));
+	}
+	
+	private void setBg() {
+		if(game.currentTime - bgScroll > 10000000) {
+			bgY -= 1;
+			bgScroll = game.currentTime;
+		}
+		if(bgY == 0){
+			bgY = 720;
+		}
 	}
 
 	@Override

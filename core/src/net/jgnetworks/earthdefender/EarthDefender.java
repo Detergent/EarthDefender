@@ -17,7 +17,8 @@ import net.jgnetworks.earthdefender.player.Player;
 import net.jgnetworks.earthdefender.projectile.Laser;
 import net.jgnetworks.earthdefender.projectile.Projectile;
 
-
+//TODO Fix collision detection between asteroid and player ship (hitbox too big)
+//TODO Check references to various game screens in Input class. Reference count never dropping to 0 to allow for garbage collection?
 public class EarthDefender extends Game {
 	
 	public BitmapFont font;
@@ -62,6 +63,7 @@ public class EarthDefender extends Game {
 
 	public void render () {
 		super.render();
+		currentTime = TimeUtils.nanoTime();
 	}
 			
 	public void dispose() {
