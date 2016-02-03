@@ -27,7 +27,9 @@ public class Level1 extends Level {
 	private SpriteBatch batch;
 	private float elapsedTime = 0;
 	private Music bgm;
-	private float bgY;
+	private float bgPos;
+	private float midBgPos;
+	private float foreBgPos;
 	private long bgScroll;
 	
 	//Player specific objects
@@ -46,7 +48,12 @@ public class Level1 extends Level {
 	private Animation laserAnimation;
 	private TextureAtlas shipTextureAtlas;
 	private Animation shipIdleAnimation;
-	private Texture background;
+	private Texture bg0;
+	private Texture bg1;
+	private Texture bg2;
+	private Texture bg3;
+	private Texture bg4;
+	private Texture bg5;
 
 	public Level1(final EarthDefender passedGame) {
 		
@@ -67,7 +74,9 @@ public class Level1 extends Level {
 		bgm.setLooping(true);
 		bgm.play();
 		
-		bgY = 720;
+		bgPos = 720;
+		midBgPos = 720;
+		foreBgPos = 720;
 		bgScroll = game.currentTime;
 	}
 
@@ -117,8 +126,12 @@ public class Level1 extends Level {
 		}
 		
 		batch.begin();
-		batch.draw(background, 0, bgY-720);
-		batch.draw(background, 0, bgY);
+		batch.draw(bg0, 0, bgPos);
+		batch.draw(bg1, 0, bgPos-720);
+		batch.draw(bg2, 0, midBgPos);
+		batch.draw(bg3, 0, midBgPos-720);
+		batch.draw(bg4, 0, foreBgPos);
+		batch.draw(bg5, 0, foreBgPos-720);
 		batch.draw(shipIdleAnimation.getKeyFrame(elapsedTime, true), game.player.x, game.player.y, game.player.width, game.player.height);
 		
 		astrItr = asteroids.iterator();
@@ -169,14 +182,22 @@ public class Level1 extends Level {
 	}
 	
 	private void loadTextures() {
-		shipTextureAtlas = new TextureAtlas(Gdx.files.internal("player/ship/shippack/shippack.atlas"));
+		shipTextureAtlas = new TextureAtlas(Gdx.files.internal("player/playerShip/playerShipPack.atlas"));
 		shipIdleAnimation = new Animation (1/6f, shipTextureAtlas.getRegions());
+		
 		laserTextureAtlas = new TextureAtlas(Gdx.files.internal("player/projectile/projectilePack.atlas"));
 		laserAnimation = new Animation (1/3f, laserTextureAtlas.getRegions());
-		asteroidTextureAtlas = new TextureAtlas(Gdx.files.internal("enemy/asteroid/idleanim/asteroidanimpack.atlas"));
+		
+		asteroidTextureAtlas = new TextureAtlas(Gdx.files.internal("enemy/enemyShip/enemyShipPack.atlas"));
 		asteroidIdleAnimation = new Animation(1/4f, asteroidTextureAtlas.getRegions());
 		asteroidDestroyTexture = new Texture(Gdx.files.internal("enemy/asteroid/asteroid_expl.png"));
-		background = new Texture(Gdx.files.internal("background.png"));
+		
+		bg0 = new Texture(Gdx.files.internal("background/bg0.png"));
+		bg1 = new Texture(Gdx.files.internal("background/bg1.png"));
+		bg2 = new Texture(Gdx.files.internal("background/bg2.png"));
+		bg3 = new Texture(Gdx.files.internal("background/bg2.png"));
+		bg4 = new Texture(Gdx.files.internal("background/bg3.png"));
+		bg5 = new Texture(Gdx.files.internal("background/bg3.png"));
 	}
 
 	
@@ -184,19 +205,28 @@ public class Level1 extends Level {
 		Asteroid asteroid = new Asteroid();
 		asteroid.x = MathUtils.random(0, 480 - 64);
 		asteroid.y = 720;
-		asteroid.width = 64;
-		asteroid.height = 64;
+		asteroid.width = 72;
+		asteroid.height = 72;
 		asteroids.add(asteroid);
 		lastEnemySpawn = game.currentTime;
 	}
 	
 	private void setBg() {
 		if(game.currentTime - bgScroll > 10000000) {
-			bgY -= 5;
+			bgPos -= .25;
+			midBgPos -= 1;
+			foreBgPos -= 4;
 			bgScroll = game.currentTime;
 		}
-		if(bgY == 0){
-			bgY = 720;
+		if(bgPos == -720){
+			game.currentLevel = new MainMenuScreen(game);
+			game.setScreen(game.currentLevel);
+		}
+		if(midBgPos == 0){
+			midBgPos = 720;
+		}
+		if(foreBgPos == 0){
+			foreBgPos = 720;
 		}
 	}
 	

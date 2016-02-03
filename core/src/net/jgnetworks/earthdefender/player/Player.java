@@ -8,8 +8,8 @@ import com.badlogic.gdx.math.Rectangle;
 public class Player extends Rectangle{
 	
 	public Player() {
-		this.width = 64;
-		this.height = 64;
+		this.width = 96;
+		this.height = 96;
 		this.x = 480/2-this.width/2;
 		this.y = 20;
 	}
