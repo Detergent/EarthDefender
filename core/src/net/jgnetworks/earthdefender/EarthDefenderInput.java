@@ -45,16 +45,24 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 	public void updatePos(float deltaTime){
 		//Keyboard directional key movement logic
 		//NOTE: Touch/mouse movement handled in overridden listeners below
-		if(holdingLeft) 
+		if(holdingLeft) {
 			game.player.x -= 400 * deltaTime;
-		else if(holdingRight)
+			game.player.hitBox.x = game.player.x + game.player.width/4;
+		}
+		else if(holdingRight){
 			game.player.x += 400 * deltaTime;
-				
+			game.player.hitBox.x = game.player.x + game.player.width/4;
+		}
+		
 		//Keep player in bounds of screen
-		if(game.player.x < 0)
+		if(game.player.x < 0){
 			game.player.x = 0;
-		if(game.player.x>480-game.player.width)
+			game.player.hitBox.x = game.player.x + game.player.width/4;
+		}
+		else if(game.player.x>480-game.player.width){
 			game.player.x = 480-game.player.width;
+			game.player.hitBox.x = game.player.x + game.player.width/4;
+		}
 	}
 	
 	@Override
@@ -107,13 +115,17 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 		game.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 		game.camera.unproject(game.touchPos);
 		game.player.x = game.touchPos.x - game.player.width/2;
-		game.player.hitBox.x = game.player.x + (game.player.x/2);
+		game.player.hitBox.x = game.player.x + game.player.width/4;
 		
 		//Keep player in bounds of screen
-		if(game.player.x < 0)
+		if(game.player.x < 0){
 			game.player.x = 0;
-		if(game.player.x>480-game.player.width)
+			game.player.hitBox.x = game.player.x + game.player.width/4;
+		}
+		else if(game.player.x>480-game.player.width){
 			game.player.x = 480-game.player.width;
+			game.player.hitBox.x = game.player.x + game.player.width/4;
+		}
 		
 		return false;
 	}
@@ -146,6 +158,21 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 			holdingLeft = true;
 		else if(keycode == Keys.RIGHT)
 			holdingRight = true;
+		else if (keycode == Keys.M){
+			if(level1.currentSound == soundStatus.off){
+				if(!level1.bgm.isPlaying()){
+					level1.bgm.play();
+				}
+				level1.currentSound = soundStatus.on;
+				level1.soundCurrent = level1.soundOn;
+				level1.bgm.setVolume(1);
+			}
+			else {
+				level1.currentSound = soundStatus.off;
+				level1.soundCurrent = level1.soundOff;
+				level1.bgm.setVolume(0);
+			}
+		}
 		return false;
 	}
 

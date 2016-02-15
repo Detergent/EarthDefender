@@ -90,7 +90,7 @@ public class MainMenuScreen extends Level {
 	}
 	
 	private void loadTextures() {
-		startImage = new Texture(Gdx.files.internal("startButton.png"));
+		startImage = new Texture(Gdx.files.internal("startbutton.png"));
 		titleImage = new Texture(Gdx.files.internal("title.png"));
 		earthImage = new Texture(Gdx.files.internal("earth/earth.png"));
 		endAnimBtnImage = new Texture(Gdx.files.internal("endbutton.png")); 

@@ -13,10 +13,10 @@ public class Player extends Rectangle{
 		this.y = 20;
 		
 		hitBox = new Rectangle();
-		hitBox.width = 32;
-		hitBox.height = 32;
-		hitBox.x = this.x + (this.x/2);
-		hitBox.y = this.y + (this.y/2);
+		hitBox.width = this.width/2;
+		hitBox.height = this.height/4;
+		hitBox.x = this.x + this.width/4;
+		hitBox.y = this.y + this.height/4;
 	}
 	
 }

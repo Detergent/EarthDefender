@@ -76,7 +76,7 @@ public class Level1 extends Level {
 		soundBtn.width = 32;
 		soundBtn.height = 32;
 		soundBtn.x = 475 - soundBtn.width;
-		soundBtn.y = 64;
+		soundBtn.y = 128;
 		soundCurrent = soundOff;
 		currentSound = soundStatus.off;
 		
@@ -139,6 +139,7 @@ public class Level1 extends Level {
 			if(asteroid.y + 64 < 0)
 				astrItr.remove();
 			else if(asteroid.overlaps(game.player.hitBox)) {
+				bgm.stop();
 				game.setScreen(new EndScreen(game));
 			} 
 		}
@@ -162,12 +163,12 @@ public class Level1 extends Level {
 		while(astrItr.hasNext()){
 			Asteroid asteroid = astrItr.next();
 			if(asteroid.isDestroyed){
-				batch.draw(asteroidDestroyTexture, asteroid.x, asteroid.y, 64, 64);
+				batch.draw(asteroidDestroyTexture, asteroid.x, asteroid.y, asteroid.width, asteroid.height);
 				if(game.currentTime - asteroid.destroyedTime >= 250000000)
 					astrItr.remove();
 					
 			}else {
-				batch.draw(asteroidIdleAnimation.getKeyFrame(elapsedTime, true), asteroid.x, asteroid.y, 64, 64);
+				batch.draw(asteroidIdleAnimation.getKeyFrame(elapsedTime, true), asteroid.x, asteroid.y, asteroid.width, asteroid.height);
 			}
 		}
 		playerProjItr = game.playerProjectiles.iterator();
@@ -232,8 +233,8 @@ public class Level1 extends Level {
 		Asteroid asteroid = new Asteroid();
 		asteroid.x = MathUtils.random(0, 480 - 64);
 		asteroid.y = 720;
-		asteroid.width = 72;
-		asteroid.height = 72;
+		asteroid.width = 64;
+		asteroid.height = 64;
 		asteroids.add(asteroid);
 		lastEnemySpawn = game.currentTime;
 	}
