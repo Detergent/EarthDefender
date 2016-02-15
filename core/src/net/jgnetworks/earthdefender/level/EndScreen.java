@@ -25,6 +25,8 @@ public class EndScreen extends Level {
 	
 	private float elapsedTime = 0;
 	
+	private String displayScore;
+	
 	public EndScreen(final EarthDefender passedGame){
 		game = passedGame;
 		game.currentLevel = this;
@@ -39,6 +41,10 @@ public class EndScreen extends Level {
 		menuBtn.y = 400;
 		
 		loadTextures();
+		
+		displayScore = game.scoreString;
+		game.score = 0;
+		game.scoreString = "Score: " + game.score;
 	}
 	
 	@Override
@@ -63,6 +69,8 @@ public class EndScreen extends Level {
 		else {
 			batch.draw(menuBtnTexture, menuBtn.x, menuBtn.y);
 			batch.draw(titleImage, 480/2 - 300/2, menuBtn.y+70);
+			game.font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+			game.font.draw(batch, displayScore, 210, 360);
 		}
 		batch.end();
 	}

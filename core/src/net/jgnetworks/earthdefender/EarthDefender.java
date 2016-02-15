@@ -37,7 +37,8 @@ public class EarthDefender extends Game {
 	
 	protected Vector3 touchPos;
 	public long currentTime;
-	
+	public int score;
+	public String scoreString;
 	
 	public void create () {
 		font = new BitmapFont();
@@ -55,6 +56,8 @@ public class EarthDefender extends Game {
 		
 		player = new Player();
 		playerProjectiles = new Array<Projectile>();
+		score = 0;
+		scoreString = "Score: " + score;
 		
 		currentTime = TimeUtils.nanoTime();
 		touchPos = new Vector3();

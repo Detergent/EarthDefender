@@ -10,8 +10,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 
@@ -20,17 +20,21 @@ import net.jgnetworks.earthdefender.enemy.Asteroid;
 import net.jgnetworks.earthdefender.projectile.Laser;
 import net.jgnetworks.earthdefender.projectile.Projectile;
 
+//TODO I really need to be loading textures/animations from within the object class. Implement render() method or use scene2d?
 
 public class Level1 extends Level {
 	//Various game mechanic objects
 	final EarthDefender game;
 	private SpriteBatch batch;
 	private float elapsedTime = 0;
-	private Music bgm;
+	public Music bgm;
 	private float bgPos;
 	private float midBgPos;
 	private float foreBgPos;
 	private long bgScroll;
+	public Rectangle soundBtn;
+	public enum soundStatus {off, on};
+	public soundStatus currentSound;
 	
 	//Player specific objects
 	private Iterator<Projectile> playerProjItr;
@@ -54,15 +58,27 @@ public class Level1 extends Level {
 	private Texture bg3;
 	private Texture bg4;
 	private Texture bg5;
-
+	private Texture bgSwap;
+	public Texture soundOn;
+	public Texture soundOff;
+	public Texture soundCurrent;
+	
 	public Level1(final EarthDefender passedGame) {
 		
 		this.game = passedGame;
 		game.currentLevel = this;
-		
+		game.input.setLevel1(this);
 		batch = new SpriteBatch();
 	
 		loadTextures();
+		
+		soundBtn = new Rectangle();
+		soundBtn.width = 32;
+		soundBtn.height = 32;
+		soundBtn.x = 475 - soundBtn.width;
+		soundBtn.y = 64;
+		soundCurrent = soundOff;
+		currentSound = soundStatus.off;
 		
 		//Create and animate enemies
 		asteroids = new Array<Asteroid>();
@@ -72,7 +88,7 @@ public class Level1 extends Level {
 		
 		bgm = Gdx.audio.newMusic(Gdx.files.internal("EarthDefenderFull.mp3"));
 		bgm.setLooping(true);
-		bgm.play();
+		bgm.setVolume(0);
 		
 		bgPos = 720;
 		midBgPos = 720;
@@ -109,6 +125,8 @@ public class Level1 extends Level {
 						asteroid.isDestroyed=true;
 						asteroid.destroyedTime=game.currentTime;
 						playerProjItr.remove();
+						game.score+=10;
+						game.scoreString = "Score: " + game.score;
 					}
 				}
 			}
@@ -120,7 +138,7 @@ public class Level1 extends Level {
 			asteroid.y -= 200 * delta;
 			if(asteroid.y + 64 < 0)
 				astrItr.remove();
-			else if(asteroid.overlaps(game.player)) {
+			else if(asteroid.overlaps(game.player.hitBox)) {
 				game.setScreen(new EndScreen(game));
 			} 
 		}
@@ -132,6 +150,12 @@ public class Level1 extends Level {
 		batch.draw(bg3, 0, midBgPos-720);
 		batch.draw(bg4, 0, foreBgPos);
 		batch.draw(bg5, 0, foreBgPos-720);
+		
+		batch.draw(soundCurrent, soundBtn.x, soundBtn.y, soundBtn.width, soundBtn.height);
+		
+		game.font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+		game.font.draw(batch, game.scoreString, 470/2-game.scoreString.length(), 700);
+		
 		batch.draw(shipIdleAnimation.getKeyFrame(elapsedTime, true), game.player.x, game.player.y, game.player.width, game.player.height);
 		
 		astrItr = asteroids.iterator();
@@ -182,7 +206,7 @@ public class Level1 extends Level {
 	}
 	
 	private void loadTextures() {
-		shipTextureAtlas = new TextureAtlas(Gdx.files.internal("player/playerShip/playerShipPack.atlas"));
+		shipTextureAtlas = new TextureAtlas(Gdx.files.internal("player/ship/shippack/shippack.atlas"));
 		shipIdleAnimation = new Animation (1/6f, shipTextureAtlas.getRegions());
 		
 		laserTextureAtlas = new TextureAtlas(Gdx.files.internal("player/projectile/projectilePack.atlas"));
@@ -198,6 +222,9 @@ public class Level1 extends Level {
 		bg3 = new Texture(Gdx.files.internal("background/bg2.png"));
 		bg4 = new Texture(Gdx.files.internal("background/bg3.png"));
 		bg5 = new Texture(Gdx.files.internal("background/bg3.png"));
+		
+		soundOn = new Texture(Gdx.files.internal("soundOn.png"));
+		soundOff = new Texture(Gdx.files.internal("soundOff.png"));
 	}
 
 	
@@ -218,9 +245,16 @@ public class Level1 extends Level {
 			foreBgPos -= 4;
 			bgScroll = game.currentTime;
 		}
-		if(bgPos == -720){
+		
+		if(bgPos == 0){
+			bgSwap = bg0;
+			bg0 = bg1;
+			bg1 = bgSwap;
+			bgPos  = 720;
+			/* Could load next level or main menu once player reaches end of background textures; just loops for now
 			game.currentLevel = new MainMenuScreen(game);
 			game.setScreen(game.currentLevel);
+			*/
 		}
 		if(midBgPos == 0){
 			midBgPos = 720;

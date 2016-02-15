@@ -9,18 +9,25 @@ import com.badlogic.gdx.math.Vector2;
 
 import net.jgnetworks.earthdefender.level.EndScreen;
 import net.jgnetworks.earthdefender.level.Level1;
+import net.jgnetworks.earthdefender.level.Level1.soundStatus;
 import net.jgnetworks.earthdefender.level.MainMenuScreen;
+
+//TODO Clean up setLevel once I have the Level class more fleshed out (see note on line 21)
 
 public class EarthDefenderInput implements InputProcessor, GestureListener {
 	private EarthDefender game;
 	private boolean holdingLeft = false;
 	private boolean holdingRight = false;
 	
+	//This is not the way to do this... Level should likely have all of the functions this
+	//class would ever need to access so I'm not keeping track of different
 	private MainMenuScreen menuScreen;
 	private EndScreen endScreen;
-	 
-	public void setGame(EarthDefender passedGame) {
-		game = passedGame;
+	private Level1 level1;
+	
+	
+	public void setLevel1(Level1 passedLevel1) {
+		level1 = passedLevel1;
 	}
 	
 	public void setMenuScreen(MainMenuScreen passedMenu) {
@@ -29,6 +36,10 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 	
 	public void setEndScreen(EndScreen passedEnd) {
 		endScreen = passedEnd;
+	}
+	
+	public void setGame(EarthDefender passedGame) {
+		game = passedGame;
 	}
 	
 	public void updatePos(float deltaTime){
@@ -54,8 +65,27 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 
 	@Override
 	public boolean tap(float x, float y, int count, int button) {
-		if(!(game.currentLevel instanceof MainMenuScreen)){
-			game.shoot(game.player);
+		if(game.currentLevel instanceof Level1){
+			game.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+			game.camera.unproject(game.touchPos);
+			if(level1.soundBtn.contains(game.touchPos.x, game.touchPos.y)){
+				if(level1.currentSound == soundStatus.off){
+					if(!level1.bgm.isPlaying()){
+						level1.bgm.play();
+					}
+					level1.currentSound = soundStatus.on;
+					level1.soundCurrent = level1.soundOn;
+					level1.bgm.setVolume(1);
+				}
+				else {
+					level1.currentSound = soundStatus.off;
+					level1.soundCurrent = level1.soundOff;
+					level1.bgm.setVolume(0);
+				}
+			}
+			else{
+				game.shoot(game.player);
+			}
 		}
 		return false;
 	}
@@ -77,6 +107,7 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 		game.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 		game.camera.unproject(game.touchPos);
 		game.player.x = game.touchPos.x - game.player.width/2;
+		game.player.hitBox.x = game.player.x + (game.player.x/2);
 		
 		//Keep player in bounds of screen
 		if(game.player.x < 0)
@@ -136,13 +167,12 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		if(game.currentLevel instanceof MainMenuScreen){
-			System.out.println("TouchDown in MainMenuScreen");
 			game.touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			game.camera.unproject(game.touchPos);
-			if(menuScreen.startButton.contains(game.touchPos.x, game.touchPos.y)){
+			if(menuScreen.startBtn.contains(game.touchPos.x, game.touchPos.y)){
 				game.setScreen(new Level1(game));
 			}
-			else if(menuScreen.endAnimButton.contains(game.touchPos.x, game.touchPos.y)){
+			else if(menuScreen.endAnimBtn.contains(game.touchPos.x, game.touchPos.y)){
 				game.setScreen(new EndScreen(game));
 			}
 			return true;
@@ -155,6 +185,7 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 			}
 			return true;
 		}
+		//Player in active level
 		else{
 			if(button == Buttons.RIGHT){
 				game.shoot(game.player);

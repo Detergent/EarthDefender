@@ -14,8 +14,8 @@ public class MainMenuScreen extends Level {
 	final EarthDefender game;
 	private SpriteBatch batch;
 	
-	public Rectangle startButton;
-	public Rectangle endAnimButton;
+	public Rectangle startBtn;
+	public Rectangle endAnimBtn;
 	private Rectangle title;
 	private Rectangle earth;
 	
@@ -42,17 +42,17 @@ public class MainMenuScreen extends Level {
 		title.x = 480/2 - title.width/2;
 		title.y = 580;
 		
-		startButton = new Rectangle();
-		startButton.width = 170;
-		startButton.height = 44;
-		startButton.x = 480/2 - startButton.width/2;
-		startButton.y = 530;
+		startBtn = new Rectangle();
+		startBtn.width = 170;
+		startBtn.height = 44;
+		startBtn.x = 480/2 - startBtn.width/2;
+		startBtn.y = 530;
 		
-		endAnimButton = new Rectangle();
-		endAnimButton.width = 170;
-		endAnimButton.height = 44;
-		endAnimButton.x = 480/2 - endAnimButton.width/2;
-		endAnimButton.y = 470;
+		endAnimBtn = new Rectangle();
+		endAnimBtn.width = 170;
+		endAnimBtn.height = 44;
+		endAnimBtn.x = 480/2 - endAnimBtn.width/2;
+		endAnimBtn.y = 470;
 		
 		earth = new Rectangle();
 		earth.width = 299;
@@ -83,14 +83,14 @@ public class MainMenuScreen extends Level {
 		batch.draw(background, 0, bgY-720);
 		batch.draw(background, 0, bgY);
 		batch.draw(titleImage, title.x, title.y);
-		batch.draw(startImage, startButton.x, startButton.y);
-		batch.draw(endAnimBtnImage, endAnimButton.x, endAnimButton.y);
+		batch.draw(startImage, startBtn.x, startBtn.y);
+		batch.draw(endAnimBtnImage, endAnimBtn.x, endAnimBtn.y);
 		batch.draw(earthImage, earth.x, earth.y);
 		batch.end();
 	}
 	
 	private void loadTextures() {
-		startImage = new Texture(Gdx.files.internal("startbutton.png"));
+		startImage = new Texture(Gdx.files.internal("startButton.png"));
 		titleImage = new Texture(Gdx.files.internal("title.png"));
 		earthImage = new Texture(Gdx.files.internal("earth/earth.png"));
 		endAnimBtnImage = new Texture(Gdx.files.internal("endbutton.png")); 
