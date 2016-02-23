@@ -61,7 +61,7 @@ public class Level1 extends Level {
 	private Texture bgSwap;
 	public Texture soundOn;
 	public Texture soundOff;
-	public Texture soundCurrent;
+	public Texture soundCurrentTexture;
 	
 	public Level1(final EarthDefender passedGame) {
 		
@@ -77,10 +77,9 @@ public class Level1 extends Level {
 		soundBtn.height = 32;
 		soundBtn.x = 475 - soundBtn.width;
 		soundBtn.y = 128;
-		soundCurrent = soundOff;
+		soundCurrentTexture = soundOff;
 		currentSound = soundStatus.off;
 		
-		//Create and animate enemies
 		asteroids = new Array<Asteroid>();
 		spawnEnemy();
 		
@@ -152,7 +151,7 @@ public class Level1 extends Level {
 		batch.draw(bg4, 0, foreBgPos);
 		batch.draw(bg5, 0, foreBgPos-720);
 		
-		batch.draw(soundCurrent, soundBtn.x, soundBtn.y, soundBtn.width, soundBtn.height);
+		batch.draw(soundCurrentTexture, soundBtn.x, soundBtn.y, soundBtn.width, soundBtn.height);
 		
 		game.font.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 		game.font.draw(batch, game.scoreString, 470/2-game.scoreString.length(), 700);
@@ -190,6 +189,7 @@ public class Level1 extends Level {
 			public void run() {
 				bgm.dispose();
 				batch.dispose(); 
+				
 				Iterator<Projectile>removePlayerProjItr = game.playerProjectiles.iterator();
 				Iterator<Asteroid>removeAstItr = asteroids.iterator();
 				while(removePlayerProjItr.hasNext()) {
@@ -198,10 +198,20 @@ public class Level1 extends Level {
 				while(removeAstItr.hasNext()){
 					removeAstItr.remove();			
 				}
+				
+				//Dispose of textures
 				asteroidDestroyTexture.dispose();
 				asteroidTextureAtlas.dispose();
 				shipTextureAtlas.dispose();
 				laserTextureAtlas.dispose();
+				bg0.dispose();
+				bg1.dispose();
+				bg2.dispose();
+				bg3.dispose();
+				bg4.dispose();
+				bg5.dispose();
+				soundOn.dispose();
+				soundOff.dispose();
 			}
 		}, delay);
 	}
@@ -252,7 +262,7 @@ public class Level1 extends Level {
 			bg0 = bg1;
 			bg1 = bgSwap;
 			bgPos  = 720;
-			/* Could load next level or main menu once player reaches end of background textures; just loops for now
+			/* Could load next level or main menu once player reaches end of background textures- just loops for now
 			game.currentLevel = new MainMenuScreen(game);
 			game.setScreen(game.currentLevel);
 			*/

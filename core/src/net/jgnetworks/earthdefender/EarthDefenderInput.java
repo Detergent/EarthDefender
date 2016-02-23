@@ -82,12 +82,12 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 						level1.bgm.play();
 					}
 					level1.currentSound = soundStatus.on;
-					level1.soundCurrent = level1.soundOn;
+					level1.soundCurrentTexture = level1.soundOn;
 					level1.bgm.setVolume(1);
 				}
 				else {
 					level1.currentSound = soundStatus.off;
-					level1.soundCurrent = level1.soundOff;
+					level1.soundCurrentTexture = level1.soundOff;
 					level1.bgm.setVolume(0);
 				}
 			}
@@ -164,12 +164,12 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 					level1.bgm.play();
 				}
 				level1.currentSound = soundStatus.on;
-				level1.soundCurrent = level1.soundOn;
+				level1.soundCurrentTexture = level1.soundOn;
 				level1.bgm.setVolume(1);
 			}
 			else {
 				level1.currentSound = soundStatus.off;
-				level1.soundCurrent = level1.soundOff;
+				level1.soundCurrentTexture = level1.soundOff;
 				level1.bgm.setVolume(0);
 			}
 		}
@@ -216,6 +216,7 @@ public class EarthDefenderInput implements InputProcessor, GestureListener {
 		else{
 			if(button == Buttons.RIGHT){
 				game.shoot(game.player);
+				return true;
 			}
 			System.out.println(button);
 			return false;
